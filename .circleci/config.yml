@@ -7,15 +7,15 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/ruby:2.6.3-node-browsers
-
+      #- image: circleci/ruby:2.6.3-node-browsers
+      - image: circleci/classic:edge
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
-      - image: circleci/postgres:11.4
-        environment:
-          POSTGRES_USER: root
-          POSTGRES_DB: circle-test_test
+      # - image: circleci/postgres:11.4
+      #   environment:
+      #     POSTGRES_USER: root
+      #     POSTGRES_DB: circle-test_test
 
     working_directory: ~/rpsec-test-cir
 
@@ -30,9 +30,13 @@ jobs:
             - v1-dependencies-
 
       - run:
-          name: install dependencies
-          command: |
-            bundle install --jobs=4 --retry=3 --path vendor/bundle
+          name: docker-compose up
+          command: docker-compose up -d
+
+      # - run:
+      #     name: install dependencies
+      #     command: |
+      #       bundle install --jobs=4 --retry=3 --path vendor/bundle
 
       - save_cache:
           paths:
