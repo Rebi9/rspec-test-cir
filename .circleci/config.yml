@@ -1,59 +1,30 @@
-# Ruby CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-ruby/ for more details
-#
 version: 2
 jobs:
   build:
-    # docker:
     machine:
-      # specify the version you desire here
-      #- image: circleci/ruby:2.6.3-node-browsers
       image: circleci/classic:edge
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:11.4
-      #   environment:
-      #     POSTGRES_USER: root
-      #     POSTGRES_DB: circle-test_test
 
     working_directory: ~/rpsec-test-cir
 
     steps:
       - checkout
-
-      # Download and cache dependencies
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "Gemfile.lock" }}
-            # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
-
       - run:
           name: docker-compose up
           command: docker-compose up -d
-
-      # - run:
-      #     name: install dependencies
-      #     command: |
-      #       bundle install --jobs=4 --retry=3 --path vendor/bundle
-
       - save_cache:
           paths:
             - ./vendor/bundle
           key: v1-dependencies-{{ checksum "Gemfile.lock" }}
-
-      # Database setup
-      - run: docker-compose run web rails db:create db:migrate
-
-      # run tests!
+      - run:
+          name: database setup
+          command: docker-compose run web rails db:create db:migrate
       - run:
           name: run tests
           command: docker-compose run web bundle exec rspec
-      # collect reports
-      - store_test_results:
-          path: /tmp/test-results
-      - store_artifacts:
-          path: /tmp/test-results
-          destination: test-results
+      - run:
+          name: docker-compose down
+          command: docker-compose down
